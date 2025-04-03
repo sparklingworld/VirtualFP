@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VFP Environment Portal</title>
+  <style>
+    /* Global Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Video Background (for login) */
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .video-background iframe {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Main Content Container */
+    .content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Login Container */
+    .login-container {
+      max-width: 400px;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      color: white;
+      text-align: center;
+    }
+
+    /* Registration Container (Hidden by Default) */
+    .registration-container {
+      display: none;
+      width: 60%;
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background-image: linear-gradient(rgba(234, 245, 225, 0.9), rgba(234, 245, 225, 0.9));
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Header Styles */
+    .reg-header {
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 30px 0;
+      width: 100%;
+      border-bottom: 5px solid #81C784;
+      margin-bottom: 30px;
+    }
+
+    .reg-header h1 {
+      font-size: 2.5rem;
+    }
+
+    /* Form Elements */
+    h1, h2 {
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+    }
+
+    .login-container .form-group label {
+      color: white;
+    }
+
+    .registration-container .form-group label {
+      color: #4CAF50;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="number"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    button, input[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .login-btn:hover {
+      background-color: #45a049;
+    }
+
+    .register-btn {
+      background-color: #FFEB3B;
+      color: #333;
+      font-size: 1.2rem;
+    }
+
+    .register-btn:hover {
+      background-color: #FFCA28;
+    }
+
+    /* Toggle Links */
+    .toggle-links {
+      margin-top: 20px;
+    }
+
+    .toggle-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .toggle-links a:hover {
+      text-decoration: underline;
+    }
+
+    .reg-toggle {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .reg-toggle:hover {
+      text-decoration: underline;
+    }
+
+    /* Error Messages */
+    .error {
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    /* Verification Notice */
+    .verification {
+      text-align: center;
+      font-size: 1rem;
+      color: #666;
+      margin-top: 20px;
+    }
+
+    /* Footer */
+    .reg-footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #4CAF50;
+      color: white;
+      width: 100%;
+      margin-top: 30px;
+      font-size: 1rem;
+      border-top: 5px solid #81C784;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .registration-container {
+        width: 90%;
+      }
+
+      .reg-header h1 {
+        font-size: 2rem;
+      }
+    }
+
+    /* Flash Message Styles */
+    #flashMessages {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 80%;
+    }
+
+    .alert {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .alert-success {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .alert-danger {
+      background-color: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Display Flash Messages -->
+  <div id="flashMessages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="alert alert-{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Video Background (for login) -->
+  <div class="video-background">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/VNu15Qqomt8?autoplay=1&mute=1&loop=1&playlist=VNu15Qqomt8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+
+  <!-- Main Content -->
+<div class="content">
+  <!-- Login Form (Default View) -->
+  <div class="login-container" id="loginContainer">
+    <h1>Welcome to VFP</h1>
+    <!-- Form to submit to Flask login route -->
+    <!-- method="POST" ensures the form uses the POST method for submission. -->
+      <!-- action="{{ url_for('login') }}" ensures the form is sent to the /login route in your Flask app. -->
+      <!-- This way, when the user submits the login form, the data will be sent to the Flask route you defined (/login). -->
+      <form action="{{ url_for('login') }}" method="POST" id="loginForm">
+        <div class="form-group">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" name="password" required>
+        </div>
+        <button type="submit" class="login-btn">Login</button>
+      </form>
+      <div class="toggle-links">
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+        <p>Forgot your password? <a href="reset_password.html">Reset it</a></p>
+      </div>
+    </div>
+  </div>
+  
+    <!-- Registration Form (Hidden Initially) -->
+    <div class="registration-container" id="registrationContainer">
+      <header class="reg-header">
+        <h1>🌳 Student Registration for Environment App 🌿</h1>
+      </header>
+  
+      <div class="container">
+        <h2 class="form-title">🌍 Register Your Details</h2>
+  
+        <form action="{{ url_for('register') }}" method="POST">
+          <div class="form-group">
+            <label for="fullName">🌱 Full Name</label>
+            <input type="text" id="fullName" name="fullName" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="username">🌿 Username</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="password">🍃 Password</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="email">🍀 Email Address</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="consent">
+              <input type="checkbox" id="consent" name="consent" required> 🍃 I agree to the terms and conditions
+            </label>
+          </div>
+  
+          <div class="form-group">
+            <input type="submit" class="register-btn" value="Register 🌍">
+          </div>
+        </form>
+  
+        <div class="verification">
+          <p>Once you submit your registration, we will send a verification link to your email.</p>
+        </div>
+  
+        <div class="toggle-links">
+          <p>Already have an account? <a href="#" id="showLogin" class="reg-toggle">Login here</a></p>
+        </div>
+      </div>
+  
+      <footer class="reg-footer">
+        <p>&copy; 2025 Environment App. All rights reserved. 🌿</p>
+      </footer>
+    </div>
+  
+    <script>
+      // Toggle between login and registration forms
+      document.getElementById('showLogin').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('registrationContainer').style.display = 'none';
+        document.getElementById('loginContainer').style.display = 'block';
+      });
+    </script>
+  </body>
+  </html>

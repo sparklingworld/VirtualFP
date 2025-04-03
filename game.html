@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFP - Environmental Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://cdn.britannica.com/87/138787-050-33727493/Belovezhskaya-Forest-Poland.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .profile-container {
+            width: 95%;
+            max-width: 900px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            color: #2E8B57;
+            text-transform: uppercase;
+        }
+
+        .level-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .level-buttons button {
+            padding: 10px 15px;
+            background-color: #2E8B57;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 150px;
+        }
+
+        .level-buttons button:hover {
+            background-color: #1F6B45;
+            transform: translateY(-3px);
+        }
+
+        .level-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-container {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .submit-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #FF8C00;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #FF6B00;
+            transform: translateY(-3px);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.1em;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .correct {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border-left: 5px solid #3c763d;
+        }
+
+        .incorrect {
+            background-color: #f2dede;
+            color: #a94442;
+            border-left: 5px solid #a94442;
+        }
+
+        /* Level 1 & 2 - MCQs */
+        .mcq-container label {
+            display: block;
+            margin: 12px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mcq-container label:hover {
+            background-color: #e9ecef;
+        }
+
+        .mcq-container input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+
+        /* Level 3 - Matching Game */
+        .matching-container {
+            text-align: center;
+        }
+
+        .matching-pairs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .matching-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .matching-item {
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .matching-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .matching-item.selected {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+
+        .matching-instructions {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        /* Level 4 - Fill in the Blanks */
+        .fillblank-container {
+            text-align: left;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .fillblank-question {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .fillblank-input {
+            padding: 8px 12px;
+            border: 2px solid #2E8B57;
+            border-radius: 6px;
+            font-size: 1em;
+            margin: 0 5px;
+            min-width: 100px;
+        }
+
+        .fillblank-feedback {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .correct-fill {
+            color: #28a745;
+        }
+
+        .incorrect-fill {
+            color: #dc3545;
+        }
+
+        /* Level 5 - Riddles */
+        .riddle-container {
+            text-align: center;
+        }
+
+        .riddle-question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .riddle-input {
+            font-size: 1.1em;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 400px;
+            border: 2px solid #2E8B57;
+            border-radius: 8px;
+        }
+
+        .next-level-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2E8B57;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .next-level-btn:hover {
+            background-color: #1F6B45;
+            transform: translateY(-3px);
+        }
+
+        .riddle-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .level-buttons button {
+                padding: 8px 12px;
+                font-size: 0.9em;
+                min-width: 120px;
+            }
+
+            .matching-pairs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-container">
+    <h1>🌳 VFP Environmental Challenge 🌿</h1>
+
+    <!-- Level Buttons -->
+    <div class="level-buttons">
+        <button id="level1-btn" onclick="startLevel(1)">Level 1: Knowledge</button>
+        <button id="level2-btn" onclick="startLevel(2)" disabled>Level 2: Ecology</button>
+        <button id="level3-btn" onclick="startLevel(3)" disabled>Level 3: Matching</button>
+        <button id="level4-btn" onclick="startLevel(4)" disabled>Level 4: Fill Blanks</button>
+        <button id="level5-btn" onclick="startLevel(5)" disabled>Level 5: Riddles</button>
+    </div>
+
+    <!-- Level 1: MCQs -->
+    <div id="level1" class="game-container mcq-container">
+        <h2>Level 1: Environmental Knowledge</h2>
+        <label>1. Which of these is NOT a major contributor to ocean acidification?</label>
+        <label>
+            <input type="radio" name="q1" value="1"> A. Increased atmospheric CO₂
+        </label>
+        <label>
+            <input type="radio" name="q1" value="2"> B. Industrial runoff
+        </label>
+        <label>
+            <input type="radio" name="q1" value="3"> C. Volcanic activity
+        </label>
+        <label>
+            <input type="radio" name="q1" value="4"> D. Deforestation
+        </label>
+
+        <label>2. What percentage of the world's oxygen is produced by phytoplankton in the ocean?</label>
+        <label>
+            <input type="radio" name="q2" value="1"> A. 10-20%
+        </label>
+        <label>
+            <input type="radio" name="q2" value="2"> B. 30-40%
+        </label>
+        <label>
+            <input type="radio" name="q2" value="3"> C. 50-70%
+        </label>
+        <label>
+            <input type="radio" name="q2" value="4"> D. 80-90%
+        </label>
+
+        <button class="submit-button" onclick="submitMCQ(1)">Submit Answers</button>
+        <div id="mcq-feedback" class="feedback"></div>
+        <button class="next-level-btn" id="next-level1-btn" onclick="completeLevel(1)" style="display: none;">Continue to Level 2</button>
+    </div>
+
+    <!-- Level 2: Advanced MCQs -->
+    <div id="level2" class="game-container mcq-container">
+        <h2>Level 2: Advanced Ecology</h2>
+        <label>1. Which of these ecosystems stores the most carbon per unit area?</label>
+        <label>
+            <input type="radio" name="q3" value="1"> A. Tropical rainforests
+        </label>
+        <label>
+            <input type="radio" name="q3" value="2"> B. Mangrove forests
+        </label>
+        <label>
+            <input type="radio" name="q3" value="3"> C. Arctic tundra
+        </label>
+        <label>
+            <input type="radio" name="q3" value="4"> D. Temperate grasslands
+        </label>
+
+        <label>2. The 'Edge Effect' in ecology refers to:</label>
+        <label>
+            <input type="radio" name="q4" value="1"> A. Increased biodiversity at ecosystem boundaries
+        </label>
+        <label>
+            <input type="radio" name="q4" value="2"> B. The impact of climate change on species distribution
+        </label>
+        <label>
+            <input type="radio" name="q4" value="3"> C. The point at which a species becomes endangered
+        </label>
+        <label>
+            <input type="radio" name="q4" value="4"> D. The boundary between fresh and saltwater ecosystems
+        </label>
+
+        <button class="submit-button" onclick="submitMCQ(2)">Submit Answers</button>
+        <div id="mcq-feedback2" class="feedback"></div>
+        <button class="next-level-btn" id="next-level2-btn" onclick="completeLevel(2)" style="display: none;">Continue to Level 3</button>
+    </div>
+
+    <!-- Level 3: Matching Game -->
+    <div id="level3" class="game-container matching-container">
+        <h2>Level 3: Environmental Matching</h2>
+        <div class="matching-instructions">
+            <p>Match each environmental term with its correct definition by selecting one from each column.</p>
+            <p>You need to make 7 correct matches to complete this level.</p>
+        </div>
+        
+        <div class="matching-pairs">
+            <div class="matching-column" id="terms-column">
+                <div class="matching-item" data-term="deforestation">Deforestation</div>
+                <div class="matching-item" data-term="biodiversity">Biodiversity</div>
+                <div class="matching-item" data-term="carbonfootprint">Carbon Footprint</div>
+                <div class="matching-item" data-term="renewable">Renewable Energy</div>
+                <div class="matching-item" data-term="ecosystem">Ecosystem</div>
+                <div class="matching-item" data-term="sustainability">Sustainability</div>
+                <div class="matching-item" data-term="conservation">Conservation</div>
+            </div>
+            
+            <div class="matching-column" id="definitions-column">
+                <div class="matching-item" data-term="conservation">Protection of natural resources</div>
+                <div class="matching-item" data-term="biodiversity">Variety of life in a habitat</div>
+                <div class="matching-item" data-term="carbonfootprint">Greenhouse gas emissions by an individual</div>
+                <div class="matching-item" data-term="deforestation">Clearing of forests for other uses</div>
+                <div class="matching-item" data-term="renewable">Energy from sources that replenish naturally</div>
+                <div class="matching-item" data-term="ecosystem">Community of living organisms and environment</div>
+                <div class="matching-item" data-term="sustainability">Meeting needs without compromising future</div>
+            </div>
+        </div>
+        
+        <button class="submit-button" onclick="checkMatching()">Check Matches</button>
+        <div id="matching-feedback" class="feedback"></div>
+        <div id="matches-count">Correct Matches: 0/7</div>
+        <button class="next-level-btn" id="next-level3-btn" onclick="completeLevel(3)" style="display: none;">Continue to Level 4</button>
+    </div>
+
+    <!-- Level 4: Fill in the Blanks -->
+    <div id="level4" class="game-container fillblank-container">
+        <h2>Level 4: Environmental Fill in the Blanks</h2>
+        
+        <div class="fillblank-question">
+            <p>1. The process where excess nutrients cause excessive plant growth in water bodies is called 
+               <input type="text" class="fillblank-input" id="blank1">
+               <span class="fillblank-feedback" id="feedback1"></span>
+            </p>
+        </div>
+        
+        <div class="fillblank-question">
+            <p>2. The 
+               <input type="text" class="fillblank-input" id="blank2">
+               cycle describes how water moves through the environment.
+               <span class="fillblank-feedback" id="feedback2"></span>
+            </p>
+        </div>
+        
+        <div class="fillblank-question">
+            <p>3. Species that are first to colonize disturbed ecosystems are called 
+               <input type="text" class="fillblank-input" id="blank3">
+               species.
+               <span class="fillblank-feedback" id="feedback3"></span>
+            </p>
+        </div>
+        
+        <div class="fillblank-question">
+            <p>4. The 
+               <input type="text" class="fillblank-input" id="blank4">
+               effect causes urban areas to be warmer than surrounding rural areas.
+               <span class="fillblank-feedback" id="feedback4"></span>
+            </p>
+        </div>
+        
+        <div class="fillblank-question">
+            <p>5. The practice of growing different crops in succession on the same land is called 
+               <input type="text" class="fillblank-input" id="blank5">
+               <span class="fillblank-feedback" id="feedback5"></span>
+            </p>
+        </div>
+        
+        <div class="fillblank-question">
+            <p>6. The variety of ecosystems in a region is called 
+               <input type="text" class="fillblank-input" id="blank6">
+               diversity.
+               <span class="fillblank-feedback" id="feedback6"></span>
+            </p>
+        </div>
+        
+        <div class="fillblank-question">
+            <p>7. The process where soil becomes salty and unsuitable for plant growth is called 
+               <input type="text" class="fillblank-input" id="blank7">
+               <span class="fillblank-feedback" id="feedback7"></span>
+            </p>
+        </div>
+        
+        <button class="submit-button" onclick="checkFillBlanks()">Check Answers</button>
+        <div id="fillblank-feedback" class="feedback"></div>
+        <button class="next-level-btn" id="next-level4-btn" onclick="completeLevel(4)" style="display: none;">Continue to Level 5</button>
+    </div>
+
+    <!-- Level 5: Riddles -->
+    <div id="level5" class="game-container riddle-container">
+        <h2>Level 5: Environmental Riddles</h2>
+        <div id="riddle-question">
+            <p class="riddle-question" id="current-riddle"></p>
+            <input type="text" class="riddle-input" id="riddle-answer" placeholder="Your answer...">
+        </div>
+        <button class="submit-button" onclick="checkRiddle()">Submit Answer</button>
+        <div id="riddle-feedback" class="feedback"></div>
+        <div class="riddle-navigation">
+            <button class="next-level-btn" id="prev-riddle-btn" onclick="prevRiddle()" style="display: none;">Previous Riddle</button>
+            <button class="next-level-btn" id="next-riddle-btn" onclick="nextRiddle()" style="display: none;">Next Riddle</button>
+        </div>
+        <button class="next-level-btn" id="next-level5-btn" onclick="completeLevel(5)" style="display: none;">Complete Challenge!</button>
+    </div>
+</div>
+
+<script>
+let currentLevel = 0;
+let completedLevels = [];
+let correctMatches = 0;
+let selectedTerm = null;
+let selectedDefinition = null;
+let currentRiddleIndex = 0;
+let correctRiddleCount = 0;
+
+// Function to start a specific level
+function startLevel(level) {
+    currentLevel = level;
+    hideAllLevels();
+    
+    if (level === 1) {
+        document.getElementById('level1').style.display = 'block';
+    } else if (level === 2) {
+        document.getElementById('level2').style.display = 'block';
+    } else if (level === 3) {
+        document.getElementById('level3').style.display = 'block';
+        initializeMatchingGame();
+    } else if (level === 4) {
+        document.getElementById('level4').style.display = 'block';
+    } else if (level === 5) {
+        document.getElementById('level5').style.display = 'block';
+        showRiddle(currentRiddleIndex);
+    }
+}
+
+// Function to hide all levels
+function hideAllLevels() {
+    const containers = document.querySelectorAll('.game-container');
+    containers.forEach(container => {
+        container.style.display = 'none';
+    });
+}
+
+// Function to submit MCQ answers
+function submitMCQ(level) {
+    let answers = [];
+    if (level === 1) {
+        answers.push(document.querySelector('input[name="q1"]:checked').value);
+        answers.push(document.querySelector('input[name="q2"]:checked').value);
+    } else if (level === 2) {
+        answers.push(document.querySelector('input[name="q3"]:checked').value);
+        answers.push(document.querySelector('input[name="q4"]:checked').value);
+    }
+
+    fetch('/submit_mcq', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ level: level, answers: answers })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const feedbackElement = level === 1 ? document.getElementById('mcq-feedback') : document.getElementById('mcq-feedback2');
+        if (data.correct) {
+            feedbackElement.innerText = "✅ Correct! Well done!";
+            feedbackElement.className = "feedback correct";
+            document.getElementById(`next-level${level}-btn`).style.display = 'inline-block';
+        } else {
+            feedbackElement.innerText = "❌ Incorrect. Please try again.";
+            feedbackElement.className = "feedback incorrect";
+        }
+    });
+}
+
+// Level 3 - Matching Game Functions
+function initializeMatchingGame() {
+    correctMatches = 0;
+    document.getElementById('matches-count').textContent = `Correct Matches: 0/7`;
+    selectedTerm = null;
+    selectedDefinition = null;
+    
+    const items = document.querySelectorAll('.matching-item');
+    items.forEach(item => {
+        item.classList.remove('selected');
+        item.style.backgroundColor = '#f8f9fa';
+        item.onclick = function() { handleMatchingClick(this); };
+    });
+}
+
+function handleMatchingClick(item) {
+    if (item.classList.contains('selected')) {
+        item.classList.remove('selected');
+        if (item.parentElement.id === 'terms-column') {
+            selectedTerm = null;
+        } else {
+            selectedDefinition = null;
+        }
+        return;
+    }
+    
+    item.classList.add('selected');
+    
+    if (item.parentElement.id === 'terms-column') {
+        if (selectedTerm) {
+            selectedTerm.classList.remove('selected');
+        }
+        selectedTerm = item;
+    } else {
+        if (selectedDefinition) {
+            selectedDefinition.classList.remove('selected');
+        }
+        selectedDefinition = item;
+    }
+    
+    if (selectedTerm && selectedDefinition) {
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const term = selectedTerm.dataset.term;
+    const definitionTerm = selectedDefinition.dataset.term;
+    
+    if (term === definitionTerm) {
+        selectedTerm.style.backgroundColor = '#d4edda';
+        selectedDefinition.style.backgroundColor = '#d4edda';
+        selectedTerm.onclick = null;
+        selectedDefinition.onclick = null;
+        
+        correctMatches++;
+        document.getElementById('matches-count').textContent = `Correct Matches: ${correctMatches}/7`;
+        
+        if (correctMatches === 7) {
+            document.getElementById('matching-feedback').innerHTML = "✅ Perfect! You matched all terms correctly!";
+            document.getElementById('matching-feedback').className = "feedback correct";
+            document.getElementById('next-level3-btn').style.display = 'inline-block';
+        }
+    } else {
+        selectedTerm.style.backgroundColor = '#f8d7da';
+        selectedDefinition.style.backgroundColor = '#f8d7da';
+        
+        setTimeout(() => {
+            selectedTerm.classList.remove('selected');
+            selectedDefinition.classList.remove('selected');
+            selectedTerm.style.backgroundColor = '#f8f9fa';
+            selectedDefinition.style.backgroundColor = '#f8f9fa';
+        }, 500);
+    }
+    
+    selectedTerm = null;
+    selectedDefinition = null;
+}
+
+function checkMatching() {
+    if (correctMatches < 7) {
+        document.getElementById('matching-feedback').innerHTML = `❌ You've made ${correctMatches} correct matches. Need ${7-correctMatches} more to complete the level.`;
+        document.getElementById('matching-feedback').className = "feedback incorrect";
+    }
+}
+
+// Level 4 - Fill in the Blanks Functions
+function checkFillBlanks() {
+    let userAnswers = {};
+    let allCorrect = true;
+    const feedback = document.getElementById('fillblank-feedback');
+    
+    for (let i = 1; i <= 7; i++) {
+        const input = document.getElementById(`blank${i}`);
+        userAnswers[`blank${i}`] = input.value.trim();
+    }
+    
+    fetch('/check_fill_blanks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ answers: userAnswers })
+    })
+    .then(response => response.json())
+    .then(data => {
+        let feedbackText = "";
+        for (const [blankId, result] of Object.entries(data.feedback)) {
+            const feedbackSpan = document.getElementById(`feedback${blankId.slice(5)}`);
+            feedbackSpan.textContent = result;
+            feedbackSpan.className = result === "✓" ? "fillblank-feedback correct-fill" : "fillblank-feedback incorrect-fill";
+        }
+        
+        if (data.all_correct) {
+            feedbackText = "✅ All answers correct! Well done!";
+            feedback.className = "feedback correct";
+            document.getElementById('next-level4-btn').style.display = 'inline-block';
+        } else {
+            feedbackText = "❌ Some answers are incorrect. Please check and try again.";
+            feedback.className = "feedback incorrect";
+        }
+        feedback.innerHTML = feedbackText;
+    });
+}
+
+// Level 5 - Riddle Functions
+function showRiddle(index) {
+    document.getElementById('current-riddle').innerHTML = riddles[index].question;
+    document.getElementById('riddle-answer').value = '';
+    document.getElementById('riddle-feedback').innerText = '';
+    document.getElementById('riddle-feedback').className = 'feedback';
+    
+    document.getElementById('prev-riddle-btn').style.display = index > 0 ? 'inline-block' : 'none';
+    document.getElementById('next-riddle-btn').style.display = 'none';
+    
+    if (correctRiddleCount === riddles.length) {
+        document.getElementById('next-level5-btn').style.display = 'inline-block';
+    }
+}
+
+function checkRiddle() {
+    const userAnswer = document.getElementById('riddle-answer').value.toLowerCase().trim();
+    const feedback = document.getElementById('riddle-feedback');
+    
+    if (!userAnswer) {
+        feedback.innerText = "Please enter your answer!";
+        feedback.className = "feedback incorrect";
+        return;
+    }
+    
+    const currentRiddle = riddles[currentRiddleIndex];
+    const isCorrect = currentRiddle.answers.some(answer => userAnswer.includes(answer));
+    
+    if (isCorrect) {
+        feedback.innerText = "✅ Correct! Well done!";
+        feedback.className = "feedback correct";
+        
+        if (!currentRiddle.solved) {
+            currentRiddle.solved = true;
+            correctRiddleCount++;
+        }
+        
+        if (currentRiddleIndex < riddles.length - 1) {
+            document.getElementById('next-riddle-btn').style.display = 'inline-block';
+        } else {
+            if (correctRiddleCount === riddles.length) {
+                document.getElementById('next-level5-btn').style.display = 'inline-block';
+            }
+        }
+    } else {
+        feedback.innerText = "❌ Incorrect. Try again or think differently!";
+        feedback.className = "feedback incorrect";
+    }
+}
+
+function nextRiddle() {
+    if (currentRiddleIndex < riddles.length - 1) {
+        currentRiddleIndex++;
+        showRiddle(currentRiddleIndex);
+    }
+}
+
+function prevRiddle() {
+    if (currentRiddleIndex > 0) {
+        currentRiddleIndex--;
+        showRiddle(currentRiddleIndex);
+    }
+}
+
+// Function to complete a level and unlock the next one
+function completeLevel(level) {
+    if (!completedLevels.includes(level)) {
+        completedLevels.push(level);
+        document.getElementById(`level${level + 1}-btn`).disabled = false; // Enable the next level button
+    }
+}
+</script>
+</body>
+</html>
